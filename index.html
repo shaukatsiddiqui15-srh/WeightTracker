@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F5F6F2">
+  <title>Morning Scale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1 class="brand">Morning Scale</h1>
+      <p class="sub" id="subtitle">Daily fasting weigh-in</p>
+    </div>
+    <button class="icon-btn" id="openSettings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="17" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="today" id="today" aria-live="polite"></section>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Progress</h2>
+        <div class="legend">
+          <span><i class="lg-dot"></i>Daily</span>
+          <span><i class="lg-line"></i>7-day avg</span>
+          <span><i class="lg-dash"></i>Target pace</span>
+        </div>
+      </div>
+      <div class="chart-wrap" id="chart"></div>
+      <p class="hint">Morning weight can swing 1–2 kg from water and salt. The 7-day average shows the real trend.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Daily log</h2><span class="muted" id="logCount"></span></div>
+      <ol class="history" id="history"></ol>
+    </section>
+
+    <section class="panel">
+      <h2>Backup</h2>
+      <p class="hint">Entries and photos are saved only on this phone. Download a backup now and then, and restore it if you change phones or clear the browser.</p>
+      <div class="row-btns">
+        <button class="btn ghost" id="exportBtn">Download backup</button>
+        <label class="btn ghost file-btn">Restore backup<input type="file" id="importInput" accept="application/json,.json"></label>
+      </div>
+    </section>
+  </main>
+
+  <!-- Log today's weight -->
+  <dialog id="logDialog" class="sheet">
+    <form method="dialog" id="logForm" class="sheet-body">
+      <h2>Log this morning's weight</h2>
+      <label class="photo-pick" id="photoPick">
+        <input type="file" id="photoInput" accept="image/*" capture="environment">
+        <img id="photoPreview" alt="Scale photo preview" hidden>
+        <span class="photo-empty" id="photoEmpty">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <strong>Take a photo of the scale</strong>
+          <small>The number on the display should be clear</small>
+        </span>
+      </label>
+      <label class="field">
+        <span>Weight shown on the scale</span>
+        <div class="kg-input"><input type="number" id="weightInput" inputmode="decimal" step="0.1" min="20" max="300" placeholder="100.0" required><b>kg</b></div>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="fastingInput" checked>
+        <span>Weighed before eating or drinking</span>
+      </label>
+      <ul class="checks" id="liveChecks"></ul>
+      <div class="sheet-actions">
+        <button type="button" class="btn ghost" id="cancelLog">Cancel</button>
+        <button type="submit" class="btn primary" id="saveLog" disabled>Save weigh-in</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- View an entry -->
+  <dialog id="viewDialog" class="sheet">
+    <div class="sheet-body" id="viewBody"></div>
+  </dialog>
+
+  <!-- Setup / settings -->
+  <dialog id="settingsDialog" class="sheet">
+    <form method="dialog" id="settingsForm" class="sheet-body">
+      <h2 id="settingsTitle">Set up the tracker</h2>
+      <label class="field"><span>Name</span><input type="text" id="sName" placeholder="e.g. Ayesha" maxlength="40"></label>
+      <div class="two">
+        <label class="field"><span>Starting weight (kg)</span><input type="number" id="sStart" step="0.1" min="20" max="300" required></label>
+        <label class="field"><span>Start date</span><input type="date" id="sDate" required></label>
+      </div>
+      <div class="two">
+        <label class="field"><span>Target loss per month (kg)</span><input type="number" id="sRate" step="0.5" min="0.5" max="10" required></label>
+        <label class="field"><span>Goal weight (kg, optional)</span><input type="number" id="sGoal" step="0.5" min="20" max="300"></label>
+      </div>
+      <label class="field"><span>Weigh-in must be photographed before</span>
+        <select id="sCutoff">
+          <option value="9">9:00 AM</option><option value="10">10:00 AM</option><option value="11">11:00 AM</option><option value="12">12:00 PM</option>
+        </select>
+      </label>
+      <div class="sheet-actions">
+        <button type="button" class="btn ghost" id="cancelSettings">Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+      <button type="button" class="link-danger" id="resetAll" hidden>Delete all data on this phone</button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
